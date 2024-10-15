@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contador de Secuencias de ADN</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4; /* Fondo gris claro */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #fff; /* Fondo blanco */
+      padding: 30px;
+      border-radius: 10px; /* Bordes redondeados */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra */
+      width: 500px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333; /* Color de texto oscuro */
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555; /* Color de texto gris */
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #4CAF50; /* Verde */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px; /* Bordes redondeados */
+      transition: background-color 0.3s ease; /* Transición suave */
+    }
+
+    button:hover {
+      background-color: #45a049; /* Verde más oscuro al pasar el ratón */
+    }
+
+    #resultados {
+      margin-top: 20px;
+    }
+
+    #resultados table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #resultados th, #resultados td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #similitudes {
+      margin-top: 20px;
+    }
+
+    #similitudes .nucleotido {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 2px;
+      border-radius: 5px;
+    }
+
+    #similitudes .nucleotido.A {
+      background-color: #FF0000; /* Rojo */
+      color: white;
+    }
+
+    #similitudes .nucleotido.T {
+      background-color: #00FF00; /* Verde */
+      color: white;
+    }
+
+    #similitudes .nucleotido.C {
+      background-color: #0000FF; /* Azul */
+      color: white;
+    }
+
+    #similitudes .nucleotido.G {
+      background-color: #FFFF00; /* Amarillo */
+      color: black;
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Contador de Secuencias de ADN</h1>
+
+    <label for="gen1">Primera cadena de ADN:</label>
+    <input type="text" id="gen1" placeholder="Ingrese la primera cadena de ADN">
+    <span id="errorGen1" class="error"></span>
+
+    <label for="adn2">Segunda cadena de ADN:</label>
+    <input type="text" id="adn2" placeholder="Ingrese la segunda cadena de ADN">
+    <span id="errorAdn2" class="error"></span>
+
+    <button onclick="contarSecuencias()">Contar</button>
+
+    <div id="resultados">
+      <h2>Resultados de las cadenas de ADN:</h2>
+      <table id="tablaResultados"></table>
+    </div>
+
+    <div id="similitudes">
+      <h2>Similitudes:</h2>
+      <div id="similitudesContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    function contarSecuencias() {
+      // Obtener las secuencias de ADN
+      var gen1 = document.getElementById('gen1').value.toUpperCase();
+      var adn2 = document.getElementById('adn2').value.toUpperCase();
+
+      // Validar las secuencias
+      var errorGen1 = document.getElementById('errorGen1');
+      var errorAdn2 = document.getElementById('errorAdn2');
+      errorGen1.textContent = '';
+      errorAdn2.textContent = '';
+
+      if (!validarSecuencia(gen1)) {
+        errorGen1.textContent = 'La primera cadena de ADN contiene caracteres inválidos. Solo se permiten A, T, C y G.';
+        return;
+      }
+
+      if (!validarSecuencia(adn2)) {
+        errorAdn2.textContent = 'La segunda cadena de ADN contiene caracteres inválidos. Solo se permiten A, T, C y G.';
+        return;
+      }
+
+      // Contar los nucleótidos
+      var conteoGen1 = contarNucleotidos(gen1);
+      var conteoAdn2 = contarNucleotidos(adn2);
+
+      // Mostrar los resultados en la tabla
+      var tablaResultados = document.getElementById('tablaResultados');
+      tablaResultados.innerHTML = ''; // Limpiar la tabla
+
+      // Crear filas para cada nucleótido
+      var filaA = tablaResultados.insertRow();
+      var filaT = tablaResultados.insertRow();
+      var filaC = tablaResultados.insertRow();
+      var filaG = tablaResultados.insertRow();
+
+      // Crear celdas para el nombre del nucleótido y el conteo total
+      var celdaANombre = filaA.insertCell();
+      celdaANombre.textContent = 'A';
+      var celdaTNombre = filaT.insertCell();
+      celdaTNombre.textContent = 'T';
+      var celdaCNombre = filaC.insertCell();
+      celdaCNombre.textContent = 'C';
+      var celdaGNombre = filaG.insertCell();
+      celdaGNombre.textContent = 'G';
+
+      var celdaATotal = filaA.insertCell();
+      celdaATotal.textContent = conteoGen1['A'] + conteoAdn2['A'];
+      var celdaTTotal = filaT.insertCell();
+      celdaTTotal.textContent = conteoGen1['T'] + conteoAdn2['T'];
+      var celdaCTotal = filaC.insertCell();
+      celdaCTotal.textContent = conteoGen1['C'] + conteoAdn2['C'];
+      var celdaGTotal = filaG.insertCell();
+      celdaGTotal.textContent = conteoGen1['G'] + conteoAdn2['G'];
+
+      var similitudesContainer = document.getElementById('similitudesContainer');
+      similitudesContainer.innerHTML = ''; // Limpiar el contenedor de similitudes
+
+      for (var nucleotido in conteoGen1) {
+        // Mostrar las similitudes por colores
+        var similitud = Math.min(conteoGen1[nucleotido], conteoAdn2[nucleotido]);
+        for (var i = 0; i < similitud; i++) {
+          var nucleotidoElement = document.createElement('span');
+          nucleotidoElement.classList.add('nucleotido', nucleotido);
+          nucleotidoElement.textContent = nucleotido;
+          similitudesContainer.appendChild(nucleotidoElement);
+        }
+      }
+    }
+
+    function contarNucleotidos(secuencia) {
+      var conteo = { 'A': 0, 'T': 0, 'C': 0, 'G': 0 };
+      for (var i = 0; i < secuencia.length; i++) {
+        var nucleotido = secuencia[i];
+        if (conteo.hasOwnProperty(nucleotido)) {
+          conteo[nucleotido]++;
+        }
+      }
+      return conteo;
+    }
+
+    function validarSecuencia(secuencia) {
+      return /^[ATCG]+$/.test(secuencia);
+    }
+  </script>
+
+</body>
+</html>
